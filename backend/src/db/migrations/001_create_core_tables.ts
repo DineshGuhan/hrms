@@ -1,4 +1,4 @@
-import { MigrationBuilder } from 'node-pg-migrate';
+import type { MigrationBuilder } from 'node-pg-migrate';
 
 /**
  * HRMS core schema — all 19 BRD entities (BRD §7.1).

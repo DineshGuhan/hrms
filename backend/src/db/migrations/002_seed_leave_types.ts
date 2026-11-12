@@ -1,4 +1,4 @@
-import { MigrationBuilder } from 'node-pg-migrate';
+import type { MigrationBuilder } from 'node-pg-migrate';
 
 /** Seed default leave types (FR-LEV-01: annual, sick, unpaid). */
 exports.up = (pgm: MigrationBuilder): void => {
