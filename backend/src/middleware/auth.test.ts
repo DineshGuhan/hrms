@@ -1,4 +1,5 @@
 import type { Request, Response, NextFunction } from 'express';
+import jwt from 'jsonwebtoken';
 import { ApiError } from './errorHandler.js';
 import { requireAuth, requireRole, type AuthUser } from './auth.js';
 
@@ -13,10 +14,15 @@ beforeEach(() => {
   next.mockClear();
 });
 
-describe('requireAuth', () => {
-  it('passes with a Bearer token', () => {
-    requireAuth(makeReq({ authorization: 'Bearer abc' }), res, next);
+const SECRET = process.env.JWT_SECRET as string;
+
+describe('requireAuth (JWT verification)', () => {
+  it('passes a valid Bearer token and attaches the decoded user', () => {
+    const token = jwt.sign({ sub: 'u9', email: 'u9@x.co', roles: ['hr'] }, SECRET, { algorithm: 'HS256' });
+    const req = makeReq({ authorization: `Bearer ${token}` });
+    requireAuth(req, res, next);
     expect(next).toHaveBeenCalledWith();
+    expect(req.user).toMatchObject({ id: 'u9', email: 'u9@x.co', roles: ['hr'] });
   });
 
   it('rejects a missing Authorization header', () => {
@@ -33,6 +39,23 @@ describe('requireAuth', () => {
 
   it('rejects an empty token', () => {
     requireAuth(makeReq({ authorization: 'Bearer ' }), res, next);
+    expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+    expect(next.mock.calls[0][0].status).toBe(401);
+  });
+
+  it('rejects a garbage token', () => {
+    requireAuth(makeReq({ authorization: 'Bearer not-a-jwt' }), res, next);
+    expect(next).toHaveBeenCalledWith(expect.any(ApiError));
+    expect(next.mock.calls[0][0].status).toBe(401);
+  });
+
+  it('rejects an expired token', () => {
+    const expired = jwt.sign(
+      { sub: 'u9', email: 'u9@x.co', roles: [] },
+      SECRET,
+      { algorithm: 'HS256', expiresIn: -10 },
+    );
+    requireAuth(makeReq({ authorization: `Bearer ${expired}` }), res, next);
     expect(next).toHaveBeenCalledWith(expect.any(ApiError));
     expect(next.mock.calls[0][0].status).toBe(401);
   });
