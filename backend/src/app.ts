@@ -6,6 +6,7 @@ import { requestId } from './middleware/requestId.js';
 import { errorHandler, notFound } from './middleware/errorHandler.js';
 import healthRouter from './modules/health/health.routes.js';
 import authRouter from './modules/auth/auth.routes.js';
+import employeesRouter from './modules/employees/employees.routes.js';
 
 export function createApp(): Express {
   const app = express();
@@ -17,6 +18,7 @@ export function createApp(): Express {
 
   app.use('/api', healthRouter);
   app.use('/api/auth', authRouter);
+  app.use('/api/employees', employeesRouter);
 
   app.use(notFound);
   app.use(errorHandler);
