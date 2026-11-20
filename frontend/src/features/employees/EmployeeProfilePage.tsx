@@ -13,9 +13,9 @@ import { apiErrorMessage } from './api';
 
 function Field({ label, value }: { label: string; value: string | null | undefined }) {
   return (
-    <div>
-      <dt>{label}</dt>
-      <dd>{value || '—'}</dd>
+    <div className="min-w-0">
+      <dt className="text-xs font-medium uppercase tracking-wide text-muted">{label}</dt>
+      <dd className="mt-0.5 truncate text-sm text-ink">{value || '—'}</dd>
     </div>
   );
 }
@@ -75,100 +75,117 @@ export function EmployeeProfilePage() {
 
   const hasSensitive = employee.salary !== undefined; // API omits it for unauthorized roles
 
+  const statusBadge =
+    employee.status === 'active'
+      ? 'inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-700 ring-1 ring-emerald-600/20'
+      : 'inline-flex items-center rounded-full bg-red-50 px-2.5 py-0.5 text-xs font-medium text-red-700 ring-1 ring-red-600/20';
+
   return (
     <>
-      <h1>
-        {employee.first_name} {employee.last_name}
-      </h1>
-      <Card title="Personal details">
-        <dl>
-          <Field label="Email" value={employee.email} />
-          {editingSelf ? (
-            <form onSubmit={handleSubmit(onSelfSave)} noValidate>
-              <div>
-                <label htmlFor="phone">Phone</label>
-                <input id="phone" {...register('phone')} />
-                {errors.phone ? <p role="alert">{errors.phone.message}</p> : null}
-              </div>
-              <div>
-                <label htmlFor="address">Address</label>
-                <input id="address" {...register('address')} />
-                {errors.address ? <p role="alert">{errors.address.message}</p> : null}
-              </div>
-              <Button type="submit" loading={isSubmitting || updateSelf.isPending}>
-                Save
-              </Button>
-              <Button variant="secondary" onClick={() => setEditingSelf(false)}>
-                Cancel
-              </Button>
-            </form>
-          ) : (
-            <>
-              <Field label="Phone" value={employee.phone} />
-              <Field label="Address" value={employee.address} />
-              {isSelf ? (
-                <Button variant="secondary" onClick={() => setEditingSelf(true)}>
-                  Edit my details
-                </Button>
-              ) : null}
-            </>
-          )}
-        </dl>
-      </Card>
-
-      <Card title="Job information">
-        <dl>
-          <Field label="Job title" value={employee.job_title} />
-          <Field label="Join date" value={employee.join_date} />
-          <Field label="Status" value={employee.status} />
-        </dl>
-      </Card>
-
-      {/* Field-level masking (FR-EMP-04): renders only when the API returned the fields. */}
-      {hasSensitive ? (
-        <Card title="Compensation & bank details">
-          <dl>
-            <Field label="Monthly salary" value={employee.salary} />
-            <Field label="Bank account" value={employee.bank_account} />
-            <Field label="Bank name" value={employee.bank_name} />
-            <Field label="National ID" value={employee.national_id} />
+      <div className="mb-6 flex items-center justify-between">
+        <h1 className="text-2xl font-semibold tracking-tight text-ink">
+          {employee.first_name} {employee.last_name}
+        </h1>
+        <span className={statusBadge}>{employee.status === 'active' ? 'Active' : 'Inactive'}</span>
+      </div>
+      <div className="space-y-6">
+        <Card title="Personal details">
+          <dl className="grid gap-x-6 gap-y-4 sm:grid-cols-2">
+            <Field label="Email" value={employee.email} />
+            {editingSelf ? (
+              <form onSubmit={handleSubmit(onSelfSave)} noValidate className="sm:col-span-2">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <label htmlFor="phone">Phone</label>
+                    <input id="phone" className="w-full" {...register('phone')} />
+                    {errors.phone ? <p role="alert" className="alert-field">{errors.phone.message}</p> : null}
+                  </div>
+                  <div>
+                    <label htmlFor="address">Address</label>
+                    <input id="address" className="w-full" {...register('address')} />
+                    {errors.address ? <p role="alert" className="alert-field">{errors.address.message}</p> : null}
+                  </div>
+                </div>
+                <div className="mt-3 flex gap-2">
+                  <Button type="submit" loading={isSubmitting || updateSelf.isPending}>
+                    Save
+                  </Button>
+                  <Button variant="secondary" onClick={() => setEditingSelf(false)}>
+                    Cancel
+                  </Button>
+                </div>
+              </form>
+            ) : (
+              <>
+                <Field label="Phone" value={employee.phone} />
+                <Field label="Address" value={employee.address} />
+                {isSelf ? (
+                  <div className="sm:col-span-2">
+                    <Button variant="secondary" onClick={() => setEditingSelf(true)}>
+                      Edit my details
+                    </Button>
+                  </div>
+                ) : null}
+              </>
+            )}
           </dl>
         </Card>
-      ) : null}
 
-      {canManage ? (
-        <>
-          <Button variant="secondary" onClick={() => navigate(`/employees/${id}/edit`)}>
-            Edit employee
-          </Button>
-          <Button
-            variant="danger"
-            onClick={() => setConfirmStatus(employee.status === 'active' ? 'inactive' : 'active')}
-          >
-            {employee.status === 'active' ? 'Deactivate' : 'Reactivate'}
-          </Button>
-        </>
-      ) : null}
+        <Card title="Job information">
+          <dl className="grid gap-x-6 gap-y-4 sm:grid-cols-2">
+            <Field label="Job title" value={employee.job_title} />
+            <Field label="Join date" value={employee.join_date} />
+          </dl>
+        </Card>
 
-      <Modal
-        open={confirmStatus !== null}
-        title={confirmStatus === 'inactive' ? 'Deactivate employee' : 'Reactivate employee'}
-        onClose={() => setConfirmStatus(null)}
-      >
-        <p>
-          {confirmStatus === 'inactive'
-            ? 'The employee will no longer be able to sign in. Their record is retained.'
-            : 'The employee will be able to sign in again.'}
-        </p>
-        <Button loading={statusMutation.isPending} onClick={onStatusConfirm}>
-          Confirm
-        </Button>
-        <Button variant="secondary" onClick={() => setConfirmStatus(null)}>
-          Cancel
-        </Button>
-      </Modal>
+        {/* Field-level masking (FR-EMP-04): renders only when the API returned the fields. */}
+        {hasSensitive ? (
+          <Card title="Compensation & bank details">
+            <dl className="grid gap-x-6 gap-y-4 sm:grid-cols-2">
+              <Field label="Monthly salary" value={employee.salary} />
+              <Field label="Bank account" value={employee.bank_account} />
+              <Field label="Bank name" value={employee.bank_name} />
+              <Field label="National ID" value={employee.national_id} />
+            </dl>
+          </Card>
+        ) : null}
 
-      <ToastHost toast={toast} dismiss={dismiss} />
+        {canManage ? (
+          <div className="flex gap-2">
+            <Button variant="secondary" onClick={() => navigate(`/employees/${id}/edit`)}>
+              Edit employee
+            </Button>
+            <Button
+              variant="danger"
+              onClick={() => setConfirmStatus(employee.status === 'active' ? 'inactive' : 'active')}
+            >
+              {employee.status === 'active' ? 'Deactivate' : 'Reactivate'}
+            </Button>
+          </div>
+        ) : null}
+
+        <Modal
+          open={confirmStatus !== null}
+          title={confirmStatus === 'inactive' ? 'Deactivate employee' : 'Reactivate employee'}
+          onClose={() => setConfirmStatus(null)}
+        >
+          <p className="text-muted">
+            {confirmStatus === 'inactive'
+              ? 'The employee will no longer be able to sign in. Their record is retained.'
+              : 'The employee will be able to sign in again.'}
+          </p>
+          <div className="flex gap-2">
+            <Button loading={statusMutation.isPending} onClick={onStatusConfirm}>
+              Confirm
+            </Button>
+            <Button variant="secondary" onClick={() => setConfirmStatus(null)}>
+              Cancel
+            </Button>
+          </div>
+        </Modal>
+
+        <ToastHost toast={toast} dismiss={dismiss} />
+      </div>
     </>
   );
 }

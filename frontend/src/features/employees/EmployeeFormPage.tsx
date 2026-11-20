@@ -78,66 +78,84 @@ export function EmployeeFormPage() {
 
   return (
     <>
-      <h1>{isEdit ? 'Edit employee' : 'Create employee'}</h1>
+      <h1 className="mb-1 text-2xl font-semibold tracking-tight text-ink">
+        {isEdit ? 'Edit employee' : 'Create employee'}
+      </h1>
+      <p className="mb-6 text-sm text-muted">
+        {isEdit ? 'Update the employee record.' : 'Add a new employee to the organization.'}
+      </p>
       <Card>
-        <form onSubmit={handleSubmit(onSubmit)} noValidate>
-          <div>
-            <label htmlFor="first_name">First name</label>
-            <input id="first_name" {...register('first_name')} />
-            {errors.first_name ? <p role="alert">{errors.first_name.message}</p> : null}
+        <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label htmlFor="first_name">First name</label>
+              <input id="first_name" className="w-full" {...register('first_name')} />
+              {errors.first_name ? <p role="alert" className="alert-field">{errors.first_name.message}</p> : null}
+            </div>
+            <div>
+              <label htmlFor="last_name">Last name</label>
+              <input id="last_name" className="w-full" {...register('last_name')} />
+              {errors.last_name ? <p role="alert" className="alert-field">{errors.last_name.message}</p> : null}
+            </div>
           </div>
-          <div>
-            <label htmlFor="last_name">Last name</label>
-            <input id="last_name" {...register('last_name')} />
-            {errors.last_name ? <p role="alert">{errors.last_name.message}</p> : null}
-          </div>
-          <div>
-            <label htmlFor="email">Email</label>
-            <input id="email" type="email" {...register('email')} disabled={isEdit} />
-            {errors.email ? <p role="alert">{errors.email.message}</p> : null}
-          </div>
-          <div>
-            <label htmlFor="phone">Phone</label>
-            <input id="phone" {...register('phone')} />
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label htmlFor="email">Email</label>
+              <input id="email" type="email" className="w-full" {...register('email')} disabled={isEdit} />
+              {errors.email ? <p role="alert" className="alert-field">{errors.email.message}</p> : null}
+            </div>
+            <div>
+              <label htmlFor="phone">Phone</label>
+              <input id="phone" className="w-full" {...register('phone')} />
+            </div>
           </div>
           <div>
             <label htmlFor="address">Address</label>
-            <input id="address" {...register('address')} />
+            <input id="address" className="w-full" {...register('address')} />
           </div>
-          <div>
-            <label htmlFor="job_title">Job title</label>
-            <input id="job_title" {...register('job_title')} />
-            {errors.job_title ? <p role="alert">{errors.job_title.message}</p> : null}
-          </div>
-          <div>
-            <label htmlFor="join_date">Join date</label>
-            <input id="join_date" type="date" {...register('join_date')} />
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label htmlFor="job_title">Job title</label>
+              <input id="job_title" className="w-full" {...register('job_title')} />
+              {errors.job_title ? <p role="alert" className="alert-field">{errors.job_title.message}</p> : null}
+            </div>
+            <div>
+              <label htmlFor="join_date">Join date</label>
+              <input id="join_date" type="date" className="w-full" {...register('join_date')} />
+            </div>
           </div>
 
           {canSeeSensitive ? (
-            <Card title="Compensation & bank details">
-              <div>
-                <label htmlFor="salary">Monthly salary</label>
-                <input id="salary" {...register('salary')} />
+            <div className="rounded-lg border border-line bg-gray-50 p-4">
+              <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">
+                Compensation & bank details
+              </h3>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label htmlFor="salary">Monthly salary</label>
+                  <input id="salary" className="w-full" {...register('salary')} />
+                </div>
+                <div>
+                  <label htmlFor="bank_account">Bank account number</label>
+                  <input id="bank_account" className="w-full" {...register('bank_account')} />
+                </div>
+                <div>
+                  <label htmlFor="bank_name">Bank name</label>
+                  <input id="bank_name" className="w-full" {...register('bank_name')} />
+                </div>
+                <div>
+                  <label htmlFor="national_id">National ID</label>
+                  <input id="national_id" className="w-full" {...register('national_id')} />
+                </div>
               </div>
-              <div>
-                <label htmlFor="bank_account">Bank account number</label>
-                <input id="bank_account" {...register('bank_account')} />
-              </div>
-              <div>
-                <label htmlFor="bank_name">Bank name</label>
-                <input id="bank_name" {...register('bank_name')} />
-              </div>
-              <div>
-                <label htmlFor="national_id">National ID</label>
-                <input id="national_id" {...register('national_id')} />
-              </div>
-            </Card>
+            </div>
           ) : null}
 
-          <Button type="submit" loading={submitting}>
-            {isEdit ? 'Save changes' : 'Create employee'}
-          </Button>
+          <div className="pt-2">
+            <Button type="submit" loading={submitting}>
+              {isEdit ? 'Save changes' : 'Create employee'}
+            </Button>
+          </div>
         </form>
       </Card>
       <ToastHost toast={toast} dismiss={dismiss} />
