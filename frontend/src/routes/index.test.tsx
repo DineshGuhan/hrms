@@ -1,8 +1,18 @@
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import { buildRoutes } from './index';
+import { SessionProvider } from '../features/auth/useSession';
+import type * as api from '../features/auth/auth.api';
 import type { RouteObject } from 'react-router-dom';
+
+// The route table renders Login and ConnectedAppShell, which read the session.
+// A provider with a no-op API mock keeps these tests focused on routing.
+const apiMock = {
+  login: vi.fn(),
+  refreshSession: vi.fn().mockResolvedValue(null),
+  logout: vi.fn(),
+} as unknown as typeof api;
 
 // Renders the real route table inside a MemoryRouter. The data router (createMemoryRouter)
 // is avoided here because its navigation uses AbortSignal, which jsdom and Node disagree on.
@@ -10,7 +20,9 @@ function renderAt(path: string, isAuthenticated: boolean) {
   const routes = buildRoutes({ isAuthenticated, userRoles: isAuthenticated ? ['employee'] : null });
   return render(
     <MemoryRouter initialEntries={[path]}>
-      <Routes>{routes.map(toRoute)}</Routes>
+      <SessionProvider apiModule={apiMock}>
+        <Routes>{routes.map(toRoute)}</Routes>
+      </SessionProvider>
     </MemoryRouter>,
   );
 }
@@ -22,6 +34,14 @@ function toRoute(route: RouteObject, key: number): JSX.Element {
   }
   return <Route key={route.path ?? `route-${key}`} path={route.path} {...common} />;
 }
+
+beforeEach(() => {
+  (apiMock.refreshSession as ReturnType<typeof vi.fn>).mockResolvedValue(null);
+});
+
+afterEach(() => {
+  vi.clearAllMocks();
+});
 
 describe('route table', () => {
   it('serves the login page publicly', async () => {

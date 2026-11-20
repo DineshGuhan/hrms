@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react';
 import { createBrowserRouter, Navigate, Outlet, type RouteObject } from 'react-router-dom';
 import { ProtectedRoute } from './ProtectedRoute';
+import { ConnectedAppShell } from '../components/layout/ConnectedAppShell';
 import type { Role } from '../hooks/useAuth';
 
 // Pages are lazy-loaded (BRD NFR-PERF: code-split routes).
@@ -25,7 +26,9 @@ export function buildRoutes(auth: AuthContext): RouteObject[] {
       path: '/',
       element: (
         <ProtectedRoute isAuthenticated={auth.isAuthenticated} userRoles={auth.userRoles}>
-          <Outlet />
+          <ConnectedAppShell>
+            <Outlet />
+          </ConnectedAppShell>
         </ProtectedRoute>
       ),
       children: [{ index: true, element: withSuspense(<Home />) }],

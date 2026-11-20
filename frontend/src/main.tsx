@@ -3,14 +3,31 @@ import { createRoot } from 'react-dom/client';
 import { App } from './App';
 import { createAppRouter } from './routes';
 import { createQueryClient } from './query/queryClient';
+import { SessionProvider, useSession } from './features/auth/useSession';
+import { RequireReady } from './components/layout/RequireReady';
 import './styles.css';
 
-// Auth state is wired to the real login flow in HRM-2/HRM-3. Until then, no user is signed in.
-const router = createAppRouter({ isAuthenticated: false, userRoles: null });
 const queryClient = createQueryClient();
+
+/** Bridges the session into the router's auth context on every render. */
+function RoutedApp() {
+  const { user, ready } = useSession();
+  const isAuthenticated = ready && user !== null;
+  const router = createAppRouter({
+    isAuthenticated,
+    userRoles: user?.roles ?? null,
+  });
+  return (
+    <RequireReady>
+      <App router={router} queryClient={queryClient} />
+    </RequireReady>
+  );
+}
 
 createRoot(document.getElementById('root') as HTMLElement).render(
   <StrictMode>
-    <App router={router} queryClient={queryClient} />
+    <SessionProvider>
+      <RoutedApp />
+    </SessionProvider>
   </StrictMode>,
 );
