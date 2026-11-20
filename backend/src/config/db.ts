@@ -18,7 +18,7 @@ export function getPool(): Pool {
 }
 
 /** Run a parameterized query (never string-built SQL). */
-export function query<T extends Record<string, unknown> = Record<string, unknown>>(
+export function query<T extends object = Record<string, unknown>>(
   text: string,
   params: unknown[] = [],
 ): Promise<{ rows: T[]; rowCount: number | null }> {
