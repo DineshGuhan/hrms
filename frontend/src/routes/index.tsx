@@ -8,6 +8,9 @@ import type { Role } from '../hooks/useAuth';
 const Home = lazy(() => import('../pages/Home'));
 const Login = lazy(() => import('../pages/Login'));
 const NotFound = lazy(() => import('../pages/NotFound'));
+const EmployeeListPage = lazy(() => import('../pages/EmployeeListPage'));
+const EmployeeProfileRoute = lazy(() => import('../pages/EmployeeProfileRoute'));
+const EmployeeFormRoute = lazy(() => import('../pages/EmployeeFormRoute'));
 
 export interface AuthContext {
   isAuthenticated: boolean;
@@ -20,18 +23,43 @@ function withSuspense(element: React.ReactNode) {
 
 /** Route table. Add new feature routes here, each lazy-loaded behind ProtectedRoute. */
 export function buildRoutes(auth: AuthContext): RouteObject[] {
+  const guard = (allowedRoles?: Role[]) => (
+    <ProtectedRoute isAuthenticated={auth.isAuthenticated} userRoles={auth.userRoles} allowedRoles={allowedRoles}>
+      <ConnectedAppShell>
+        <Outlet />
+      </ConnectedAppShell>
+    </ProtectedRoute>
+  );
+
   return [
     { path: '/login', element: withSuspense(<Login />) },
     {
       path: '/',
-      element: (
-        <ProtectedRoute isAuthenticated={auth.isAuthenticated} userRoles={auth.userRoles}>
-          <ConnectedAppShell>
-            <Outlet />
-          </ConnectedAppShell>
-        </ProtectedRoute>
-      ),
-      children: [{ index: true, element: withSuspense(<Home />) }],
+      element: guard(),
+      children: [
+        { index: true, element: withSuspense(<Home />) },
+        {
+          path: 'employees',
+          element: guard(['admin', 'hr', 'manager']),
+          children: [
+            { index: true, element: withSuspense(<EmployeeListPage />) },
+            {
+              path: 'new',
+              element: guard(['admin', 'hr']),
+              children: [{ index: true, element: withSuspense(<EmployeeFormRoute />) }],
+            },
+            {
+              path: ':id',
+              element: withSuspense(<EmployeeProfileRoute />),
+            },
+            {
+              path: ':id/edit',
+              element: guard(['admin', 'hr']),
+              children: [{ index: true, element: withSuspense(<EmployeeFormRoute />) }],
+            },
+          ],
+        },
+      ],
     },
     { path: '/home', element: <Navigate to="/" replace /> },
     { path: '*', element: withSuspense(<NotFound />) },
