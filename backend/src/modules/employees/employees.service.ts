@@ -72,7 +72,8 @@ export async function listEmployees(query: ListQuery, viewer: AuthUser) {
     search: query.search,
     department: query.department,
     status: query.status,
-    limit: query.limit,
+    // Defense-in-depth: the Zod schema caps limit at 100, the service enforces it too.
+    limit: Math.min(query.limit, 100),
     offset: (query.page - 1) * query.limit,
   };
   const [rows, total] = await Promise.all([
