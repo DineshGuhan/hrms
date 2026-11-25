@@ -162,6 +162,39 @@ describe('listEmployees (role scoping)', () => {
     const filters = mockRepo.listEmployees.mock.calls[0][0];
     expect(filters).toMatchObject({ search: 'asha', department: 'd1', status: 'active', limit: 10, offset: 10 });
   });
+
+  it('search with no matches returns an empty list and zero total', async () => {
+    mockRepo.findEmployeeByUserId.mockResolvedValue(null);
+    mockRepo.listEmployees.mockResolvedValue([]);
+    mockRepo.countEmployees.mockResolvedValue(0);
+    const result = await service.listEmployees({ search: 'zzz', page: 1, limit: 20 }, admin);
+    expect(result.data).toEqual([]);
+    expect(result.meta).toMatchObject({ page: 1, limit: 20, total: 0, totalPages: 1 });
+  });
+
+  it('combined filters pass through together (AND)', async () => {
+    mockRepo.findEmployeeByUserId.mockResolvedValue(null);
+    mockRepo.listEmployees.mockResolvedValue([]);
+    mockRepo.countEmployees.mockResolvedValue(0);
+    await service.listEmployees(
+      { search: 'ra', department: 'd9', status: 'inactive', page: 1, limit: 20 },
+      admin,
+    );
+    const filters = mockRepo.listEmployees.mock.calls[0][0];
+    expect(filters).toMatchObject({ search: 'ra', department: 'd9', status: 'inactive' });
+    const countFilters = mockRepo.countEmployees.mock.calls[0][0];
+    expect(countFilters).toMatchObject({ search: 'ra', department: 'd9', status: 'inactive' });
+  });
+
+  it('caps limit at 100 regardless of the requested value', async () => {
+    mockRepo.findEmployeeByUserId.mockResolvedValue(null);
+    mockRepo.listEmployees.mockResolvedValue([]);
+    mockRepo.countEmployees.mockResolvedValue(0);
+    // Schema clamps at parse time; the service must not bypass it.
+    const parsed = { search: undefined, department: undefined, status: undefined, page: 1, limit: 500 };
+    await service.listEmployees(parsed as never, admin);
+    expect(mockRepo.listEmployees.mock.calls[0][0].limit).toBeLessThanOrEqual(100);
+  });
 });
 
 describe('updateEmployee', () => {
