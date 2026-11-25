@@ -18,16 +18,14 @@ export interface AuthContext {
 }
 
 function withSuspense(element: React.ReactNode) {
-  return <Suspense fallback={<p>Loading…</p>}>{element}</Suspense>;
+  return <Suspense fallback={<p aria-busy="true">Loading…</p>}>{element}</Suspense>;
 }
 
-/** Route table. Add new feature routes here, each lazy-loaded behind ProtectedRoute. */
+/** Route table. One AppShell at the root layout; nested routes add guards only. */
 export function buildRoutes(auth: AuthContext): RouteObject[] {
   const guard = (allowedRoles?: Role[]) => (
     <ProtectedRoute isAuthenticated={auth.isAuthenticated} userRoles={auth.userRoles} allowedRoles={allowedRoles}>
-      <ConnectedAppShell>
-        <Outlet />
-      </ConnectedAppShell>
+      <Outlet />
     </ProtectedRoute>
   );
 
@@ -35,27 +33,48 @@ export function buildRoutes(auth: AuthContext): RouteObject[] {
     { path: '/login', element: withSuspense(<Login />) },
     {
       path: '/',
-      element: guard(),
+      element: guard(), // any authenticated user
       children: [
-        { index: true, element: withSuspense(<Home />) },
         {
+          path: '',
+          element: (
+            <ConnectedAppShell>
+              {withSuspense(<Home />)}
+            </ConnectedAppShell>
+          ),
+        },
+        {
+          // HR/Admin/Manager for everything under /employees
           path: 'employees',
           element: guard(['admin', 'hr', 'manager']),
           children: [
-            { index: true, element: withSuspense(<EmployeeListPage />) },
+            {
+              path: '',
+              element: <ConnectedAppShell>{withSuspense(<EmployeeListPage />)}</ConnectedAppShell>,
+            },
             {
               path: 'new',
               element: guard(['admin', 'hr']),
-              children: [{ index: true, element: withSuspense(<EmployeeFormRoute />) }],
+              children: [
+                {
+                  path: '',
+                  element: <ConnectedAppShell>{withSuspense(<EmployeeFormRoute />)}</ConnectedAppShell>,
+                },
+              ],
             },
             {
               path: ':id',
-              element: withSuspense(<EmployeeProfileRoute />),
+              element: <ConnectedAppShell>{withSuspense(<EmployeeProfileRoute />)}</ConnectedAppShell>,
             },
             {
               path: ':id/edit',
               element: guard(['admin', 'hr']),
-              children: [{ index: true, element: withSuspense(<EmployeeFormRoute />) }],
+              children: [
+                {
+                  path: '',
+                  element: <ConnectedAppShell>{withSuspense(<EmployeeFormRoute />)}</ConnectedAppShell>,
+                },
+              ],
             },
           ],
         },
