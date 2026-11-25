@@ -8,7 +8,7 @@ import type { Role } from '../hooks/useAuth';
 const Home = lazy(() => import('../pages/Home'));
 const Login = lazy(() => import('../pages/Login'));
 const NotFound = lazy(() => import('../pages/NotFound'));
-const EmployeeListPage = lazy(() => import('../pages/EmployeeListPage'));
+const EmployeeListPage = lazy(() => import('../features/employees/directory/DirectoryPage'));
 const EmployeeProfileRoute = lazy(() => import('../pages/EmployeeProfileRoute'));
 const EmployeeFormRoute = lazy(() => import('../pages/EmployeeFormRoute'));
 

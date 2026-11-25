@@ -14,6 +14,8 @@ export function useEmployee(id: string) {
 
 export function useEmployeeList(params: {
   search?: string;
+  department?: string;
+  status?: string;
   page: number;
   limit: number;
 }) {
