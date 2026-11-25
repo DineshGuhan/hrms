@@ -22,13 +22,13 @@ export function pageItems(page: number, totalPages: number): (number | null)[] {
 export function Pagination({ page, totalPages, onPageChange }: PaginationProps) {
   if (totalPages <= 1) return null;
   return (
-    <nav aria-label="Pagination" className="pagination">
-      <Button variant="secondary" disabled={page <= 1} onClick={() => onPageChange(page - 1)}>
+    <nav aria-label="Pagination" className="mt-4 flex flex-wrap items-center gap-1.5">
+      <Button variant="secondary" disabled={page <= 1} onClick={() => onPageChange(page - 1)} className="px-3 py-1.5 text-xs">
         Previous
       </Button>
       {pageItems(page, totalPages).map((item, i) =>
         item === null ? (
-          <span key={`gap-${i}`} aria-hidden="true">
+          <span key={`gap-${i}`} aria-hidden="true" className="px-1 text-muted">
             …
           </span>
         ) : (
@@ -37,6 +37,7 @@ export function Pagination({ page, totalPages, onPageChange }: PaginationProps) 
             variant={item === page ? 'primary' : 'secondary'}
             aria-current={item === page ? 'page' : undefined}
             onClick={() => onPageChange(item)}
+            className={`px-3 py-1.5 text-xs ${item === page ? 'cursor-default' : ''}`}
           >
             {item}
           </Button>
@@ -46,6 +47,7 @@ export function Pagination({ page, totalPages, onPageChange }: PaginationProps) 
         variant="secondary"
         disabled={page >= totalPages}
         onClick={() => onPageChange(page + 1)}
+        className="px-3 py-1.5 text-xs"
       >
         Next
       </Button>

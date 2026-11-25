@@ -33,7 +33,16 @@ export default function EmployeeListPage() {
 
   return (
     <>
-      <h1>Employees</h1>
+      <div className="mb-6 flex items-center justify-between">
+        <h1 className="text-2xl font-semibold tracking-tight text-ink">Employees</h1>
+        <button
+          type="button"
+          onClick={() => navigate('/employees/new')}
+          className="inline-flex items-center gap-2 rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-brand-700"
+        >
+          + Add employee
+        </button>
+      </div>
       <Card>
         {list.data ? (
           <>
@@ -48,11 +57,8 @@ export default function EmployeeListPage() {
         ) : (
           <p aria-busy="true">Loading…</p>
         )}
-        {list.isError ? <p role="alert">Could not load employees.</p> : null}
+        {list.isError ? <p role="alert" className="alert-error mt-4">Could not load employees.</p> : null}
       </Card>
-      <button type="button" onClick={() => navigate('/employees/new')}>
-        Add employee
-      </button>
     </>
   );
 }

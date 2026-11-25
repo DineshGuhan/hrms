@@ -29,47 +29,50 @@ export function LoginForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} noValidate>
+    <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
       <div>
         <label htmlFor="email">Email</label>
         <input
           id="email"
           type="email"
           autoComplete="email"
+          className="w-full"
           {...register('email')}
           aria-invalid={errors.email ? true : undefined}
         />
-        {errors.email ? <p role="alert">{errors.email.message}</p> : null}
+        {errors.email ? <p role="alert" className="alert-field">{errors.email.message}</p> : null}
       </div>
 
       <div>
         <label htmlFor="password">Password</label>
-        <div>
+        <div className="relative">
           <input
             id="password"
             type={showPassword ? 'text' : 'password'}
             autoComplete="current-password"
+            className="w-full pr-16"
             {...register('password')}
             aria-invalid={errors.password ? true : undefined}
           />
           <button
             type="button"
+            className="absolute inset-y-0 right-3 text-xs font-medium text-brand-600 transition hover:text-brand-700"
             aria-label={showPassword ? 'Hide password' : 'Show password'}
             onClick={() => setShowPassword((s) => !s)}
           >
             {showPassword ? 'Hide' : 'Show'}
           </button>
         </div>
-        {errors.password ? <p role="alert">{errors.password.message}</p> : null}
+        {errors.password ? <p role="alert" className="alert-field">{errors.password.message}</p> : null}
       </div>
 
       {formError ? (
-        <p role="alert" className="form-error">
+        <p role="alert" className="alert-error">
           {formError}
         </p>
       ) : null}
 
-      <Button type="submit" loading={isSubmitting}>
+      <Button type="submit" loading={isSubmitting} className="w-full">
         Sign in
       </Button>
     </form>

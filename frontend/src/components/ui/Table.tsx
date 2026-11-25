@@ -15,28 +15,36 @@ export interface TableProps<T> {
 
 export function Table<T>({ columns, rows, rowKey, emptyMessage = 'No records found' }: TableProps<T>) {
   if (rows.length === 0) {
-    return <p className="table-empty">{emptyMessage}</p>;
+    return (
+      <p className="rounded-lg border border-dashed border-line bg-gray-50 px-4 py-10 text-center text-sm text-muted">
+        {emptyMessage}
+      </p>
+    );
   }
   return (
-    <table className="table">
-      <thead>
-        <tr>
-          {columns.map((c) => (
-            <th key={c.key} scope="col">
-              {c.header}
-            </th>
-          ))}
-        </tr>
-      </thead>
-      <tbody>
-        {rows.map((row) => (
-          <tr key={rowKey(row)}>
+    <div className="overflow-hidden rounded-lg border border-line bg-surface">
+      <table className="table w-full">
+        <thead>
+          <tr className="border-b border-line bg-gray-50">
             {columns.map((c) => (
-              <td key={c.key}>{c.render(row)}</td>
+              <th key={c.key} scope="col" className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted">
+                {c.header}
+              </th>
             ))}
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {rows.map((row, i) => (
+            <tr key={rowKey(row)} className={i % 2 === 1 ? 'bg-gray-50/50' : undefined}>
+              {columns.map((c) => (
+                <td key={c.key} className="px-4 py-3 text-sm">
+                  {c.render(row)}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }
