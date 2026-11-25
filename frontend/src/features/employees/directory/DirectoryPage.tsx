@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Card } from '../../../components/ui/Card';
 import { Pagination } from '../../../components/ui/Pagination';
 import { useDebouncedValue } from '../../../hooks/useDebouncedValue';
+import { useSession } from '../../auth/useSession';
 import { useEmployeeList } from '../queries';
 import type { EmployeeListItem } from '../api';
 
@@ -22,6 +23,8 @@ const statusBadge = (status: string) =>
 /** Employee Directory (page 9, BRD §5). Role scoping is enforced by the API. */
 export default function DirectoryPage() {
   const navigate = useNavigate();
+  const { hasRole } = useSession();
+  const canManage = hasRole('admin', 'hr');
   const [searchInput, setSearchInput] = useState('');
   const [department, setDepartment] = useState('');
   const [status, setStatus] = useState('');
@@ -52,8 +55,19 @@ export default function DirectoryPage() {
   return (
     <>
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-semibold tracking-tight text-ink">Employees</h1>
-        {meta ? <p className="text-sm text-muted">{meta.total} total</p> : null}
+        <div className="flex items-center gap-4">
+          <h1 className="text-2xl font-semibold tracking-tight text-ink">Employees</h1>
+          {meta ? <p className="text-sm text-muted">{meta.total} total</p> : null}
+        </div>
+        {canManage ? (
+          <button
+            type="button"
+            onClick={() => navigate('/employees/new')}
+            className="inline-flex items-center gap-2 rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-brand-700"
+          >
+            + Add employee
+          </button>
+        ) : null}
       </div>
 
       <Card>

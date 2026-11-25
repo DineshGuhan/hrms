@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -136,9 +136,16 @@ describe('DirectoryPage — pagination and rows', () => {
   });
 
   it('status badge reflects the row status', async () => {
-    renderDirectory();
+    const { container } = renderDirectory();
     expect(await screen.findByText('Inactive')).toBeInTheDocument();
-    expect(screen.getByText('Active')).toBeInTheDocument();
+    // Badges live in table cells; the filter <select> options also contain
+    // "Active"/"Inactive", so scope the query to the table body.
+    const badges = within(container.querySelector('tbody') as HTMLElement).getAllByText(
+      /^(Active|Inactive)$/,
+    );
+    expect(badges).toHaveLength(2);
+    expect(badges.some((el) => el.textContent === 'Active')).toBe(true);
+    expect(badges.some((el) => el.textContent === 'Inactive')).toBe(true);
   });
 });
 
