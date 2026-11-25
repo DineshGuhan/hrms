@@ -17,4 +17,7 @@ coverage/
 # Editor and OS files
 .vscode/
 .idea/
-.DS_Store*.tsbuildinfo
+.DS_Store
+
+# Build artifacts
+*.tsbuildinfo
