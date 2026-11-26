@@ -11,6 +11,7 @@ const NotFound = lazy(() => import('../pages/NotFound'));
 const EmployeeListPage = lazy(() => import('../features/employees/directory/DirectoryPage'));
 const EmployeeProfileRoute = lazy(() => import('../pages/EmployeeProfileRoute'));
 const EmployeeFormRoute = lazy(() => import('../pages/EmployeeFormRoute'));
+const DepartmentsPage = lazy(() => import('../features/departments/DepartmentsPage'));
 
 export interface AuthContext {
   isAuthenticated: boolean;
@@ -42,6 +43,12 @@ export function buildRoutes(auth: AuthContext): RouteObject[] {
               {withSuspense(<Home />)}
             </ConnectedAppShell>
           ),
+        },
+        {
+          // HR/Admin only for the departments page
+          path: 'departments',
+          element: guard(['admin', 'hr']),
+          children: [{ index: true, element: withSuspense(<DepartmentsPage />) }],
         },
         {
           // HR/Admin/Manager for everything under /employees

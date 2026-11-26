@@ -5,6 +5,7 @@ import { Pagination } from '../../../components/ui/Pagination';
 import { useDebouncedValue } from '../../../hooks/useDebouncedValue';
 import { useSession } from '../../auth/useSession';
 import { useEmployeeList } from '../queries';
+import { useDepartmentOptions } from '../../departments/queries';
 import type { EmployeeListItem } from '../api';
 
 const LIMIT = 20;
@@ -31,6 +32,7 @@ export default function DirectoryPage() {
   const [page, setPage] = useState(1);
 
   const search = useDebouncedValue(searchInput, 300);
+  const departmentOptions = useDepartmentOptions();
   const hasFilters = search !== '' || department !== '' || status !== '';
   const list = useEmployeeList({
     search: search || undefined,
@@ -98,7 +100,11 @@ export default function DirectoryPage() {
               }}
             >
               <option value="">All departments</option>
-              {/* Options arrive with the departments API (HRM-16). */}
+              {(departmentOptions.data ?? []).map((d: { id: string; name: string }) => (
+                <option key={d.id} value={d.id}>
+                  {d.name}
+                </option>
+              ))}
             </select>
           </div>
           <div>
