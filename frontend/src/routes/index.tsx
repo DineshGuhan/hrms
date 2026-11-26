@@ -48,7 +48,12 @@ export function buildRoutes(auth: AuthContext): RouteObject[] {
           // HR/Admin only for the departments page
           path: 'departments',
           element: guard(['admin', 'hr']),
-          children: [{ index: true, element: withSuspense(<DepartmentsPage />) }],
+          children: [
+            {
+              path: '',
+              element: <ConnectedAppShell>{withSuspense(<DepartmentsPage />)}</ConnectedAppShell>,
+            },
+          ],
         },
         {
           // HR/Admin/Manager for everything under /employees
