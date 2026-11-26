@@ -12,6 +12,7 @@ const EmployeeListPage = lazy(() => import('../features/employees/directory/Dire
 const EmployeeProfileRoute = lazy(() => import('../pages/EmployeeProfileRoute'));
 const EmployeeFormRoute = lazy(() => import('../pages/EmployeeFormRoute'));
 const DepartmentsPage = lazy(() => import('../features/departments/DepartmentsPage'));
+const LeaveTypesPage = lazy(() => import('../features/leave/LeaveTypesPage'));
 
 export interface AuthContext {
   isAuthenticated: boolean;
@@ -52,6 +53,17 @@ export function buildRoutes(auth: AuthContext): RouteObject[] {
             {
               path: '',
               element: <ConnectedAppShell>{withSuspense(<DepartmentsPage />)}</ConnectedAppShell>,
+            },
+          ],
+        },
+        {
+          // HR/Admin only for the leave types configuration page
+          path: 'leave-types',
+          element: guard(['admin', 'hr']),
+          children: [
+            {
+              path: '',
+              element: <ConnectedAppShell>{withSuspense(<LeaveTypesPage />)}</ConnectedAppShell>,
             },
           ],
         },
